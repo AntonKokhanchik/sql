@@ -14,7 +14,7 @@ select * from students where student_name="Сигридюр";
 select * from students where n_group=44 or n_group=45;
 # Напишите запрос, который вывел бы записи о студентах  34 и 35 группы, которые имеют телефон
 select * from students 
-	where n_group=34 or n_group=35 and number_telephone is not null;
+	where (n_group=34 or n_group=35) and number_telephone is not null;
 # Напишите запрос, который вывел бы значения № группы из таблицы «Студенты», без каких бы то ни было  повторений.
 select distinct n_group from students order by n_group asc;
 # Напишите запрос, который вывел бы фамилии преподавателей. /Учесть, чтобы фамилии появлялись без повтора, если преподаватели ведут два и более предметов/
@@ -45,5 +45,5 @@ select n_zach, mark from students_subjects
     
 select n_zach, student_name, student_surname, subject_name, mark 
 	from students_subjects natural join students natural join teachers 
-    where (n_zach = 8970 or n_zach = 5211 or n_zach=7141) 
+    where n_zach in (8970, 5211, 7141) 
     and subject_name="Метание топоров";
