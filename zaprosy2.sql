@@ -51,22 +51,6 @@ select subject_name, mark, count(mark)
 	group by subject_name, mark 
     order by subject_name, mark;
 
-/*select subject_name, count2, count3, count4, count5 
-	from teachers, 
-		(select n_subject, count(mark) as count2 from students_subjects where mark = 2 group by n_subject) as ss2,  
-        (select n_subject, count(mark) as count3 from students_subjects where mark = 3 group by n_subject) as ss3,
-        (select n_subject, count(mark) as count4 from students_subjects where mark = 4 group by n_subject) as ss4,
-        (select n_subject, count(mark) as count5 from students_subjects where mark = 5 group by n_subject) as ss5
-    order by teachers.n_subject;*/
-/*тут проблема с нулём, count не пишет 0 а потому, похоже, такой запрос не составить*/
-#14. Вывести количество студентов в каждой группе.
-#15. Вывести количество «2», «3», «4», «5», полученных каждым студентом на экзамене. (3 способа, см. запрос 13)
-#16. Вывести количество человек в каждой группе, которые имеют телефон.
-#17. Вывести количество студентов в каждой малочисленной группе. ( <5 человек)
-#18. Вывести средний показатель успеваемости групп по предмету (N_группы, предмет, средний показатель успеваемости).
-#19. Вывести сведения о трех студентах, получивших наибольшие баллы на экзамене по английскому языку.
-SELECT n_subject, mark, count(mark) as Kolvo from students_subjects group by n_subject, mark;
-
 SELECT n_zach, sum(mark = 5) as mark5, sum(mark = 4) as mark4, sum(mark = 3) as mark3, sum(mark = 2) as mark2 from students_subjects group by n_zach;
 
 select n_zach, 
@@ -75,7 +59,7 @@ select n_zach,
 (select count(table3.mark) from students_subjects as table3 where table3.mark = 3 and students_subjects.n_zach = table3.n_zach) as mark3,
 (select count(table4.mark) from students_subjects as table4 where table4.mark = 2 and students_subjects.n_zach = table4.n_zach) as mark2 
 from students_subjects group by n_zach;
-
+# или
 select distinct n_zach, 
 (select count(table1.mark) from students_subjects as table1 where table1.mark = 5 and students_subjects.n_zach = table1.n_zach) as mark5, 
 (select count(table2.mark) from students_subjects as table2 where table2.mark = 4 and students_subjects.n_zach = table2.n_zach) as mark4,
@@ -83,10 +67,10 @@ select distinct n_zach,
 (select count(table4.mark) from students_subjects as table4 where table4.mark = 2 and students_subjects.n_zach = table4.n_zach) as mark2 
 from students_subjects order by n_zach asc;
 
-#Вывести количество студентов в каждой группе.
-SELECT n_groups, count(n_zach) from students group by n_groups;
+#14. Вывести количество студентов в каждой группе.
+SELECT n_group, count(n_zach) from students group by n_group;
 
-#Вывести количество «2», «3», «4», «5», полученных каждым студентом на экзамене. (3 способа, см. запрос 13)
+#15. Вывести количество «2», «3», «4», «5», полученных каждым студентом на экзамене. (3 способа, см. запрос 13)
 SELECT n_zach, mark, count(mark) as Kolvo from students_subjects group by n_zach, mark;
 
 SELECT n_subject, sum(mark = 5) as mark5, sum(mark = 4) as mark4, sum(mark = 3) as mark3, sum(mark = 2) as mark2 from students_subjects group by n_subject;
@@ -98,24 +82,29 @@ select n_subject,
 (select count(table4.mark) from students_subjects as table4 where table4.mark = 2 and students_subjects.n_subject = table4.n_subject) as mark2 
 from students_subjects group by n_subject;
 
-#Вывести количество человек в каждой группе, которые имеют телефон.
-select n_groups, count(n_zach) from students where number_telephones is not null group by n_groups;
+#16. Вывести количество человек в каждой группе, которые имеют телефон.
+select n_group, count(n_zach) from students where number_telephone is not null group by n_group;
 
-#Вывести количество студентов в каждой малочисленной группе. ( <5 человек)
-select n_groups, count(n_zach) from students group by n_groups having count(n_zach) < 3;
+#17. Вывести количество студентов в каждой малочисленной группе. ( <5 человек)
+select n_group, count(n_zach) from students group by n_group having count(n_zach) < 8;
 
-#Вывести средний показатель успеваемости групп по предмету (N_группы, предмет, средний показатель успеваемости).
-select n_groups, subject_name, 
-			(select avg(mark) from students_subjects as table1, students as table2 
-				where  students.n_groups = table2.n_groups and students_subjects.n_subject = table1.n_subject and table1.n_zach = table2.n_zach) as SrArif
- from students_subjects natural join teachers natural join students group by n_groups, subject_name;
+#18. Вывести средний показатель успеваемости групп по предмету (N_группы, предмет, средний показатель успеваемости).
+select n_group, subject_name, 
+	(select avg(mark) from students_subjects as table1, students as table2 
+		where  students.n_group = table2.n_group 
+        and students_subjects.n_subject = table1.n_subject 
+        and table1.n_zach = table2.n_zach) as SrArif
+	from students_subjects natural join teachers natural join students 
+    group by n_group, subject_name;
  
  select n_groups, subject_name, 
-			(select avg(mark) from students_subjects as table1 natural join students as table2 
-				where  students.n_groups = table2.n_groups and students_subjects.n_subject = table1.n_subject) as SrArif
- from students_subjects natural join teachers natural join students group by n_groups, subject_name;
- 
- 
- #Вывести сведения о трех студентах, получивших наибольшие баллы на экзамене по языку.
+	(select avg(mark) from students_subjects as table1 natural join students as table2 
+		where  students.n_groups = table2.n_groups 
+		and students_subjects.n_subject = table1.n_subject) as SrArif
+	from students_subjects natural join teachers natural join students group by n_groups, subject_name;
+
+#19. Вывести сведения о трех студентах, получивших наибольшие баллы на экзамене по английскому языку.
  select student_surname, student_name, mark 
-	from students_subjects natural join teachers natural join students where subject_name = "Вальгалловедение" order by mark desc limit 3;
+	from students_subjects natural join teachers natural join students 
+    where subject_name = "Вальгалловедение" 
+    order by mark desc limit 3;
